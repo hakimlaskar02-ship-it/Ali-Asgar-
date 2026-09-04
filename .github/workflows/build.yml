@@ -1,4 +1,4 @@
-name: Build Android App
+name: Build APK
 
 on: [push]
 
@@ -6,20 +6,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-    - name: Build APK
-      run: |
-        unzip -q *.zip -d project_dir
-        cd project_dir/* || cd project_dir
-        chmod +x gradlew
-        ./gradlew assembleDebug
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: '**/build/outputs/apk/debug/*.apk'
-		
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Make APK
+        run: |
+          unzip -q *.zip -d source_code
+          cd source_code/* || cd source_code
+          chmod +x gradlew
+          ./gradlew assembleDebug
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: '**/build/outputs/apk/debug/*.apk'
+		  
