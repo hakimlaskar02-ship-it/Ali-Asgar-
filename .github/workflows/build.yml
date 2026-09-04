@@ -14,10 +14,16 @@ jobs:
           unzip -q *.zip -d source_code
           cd source_code
           cd $(find . -maxdepth 1 -type d ! -name '.' | head -n 1)
-          # Force a compatible Gradle version (8.5) to avoid internal API removal error
-          gradle wrapper --gradle-version 8.5
+          
+          # Force Gradle version 8.9 to avoid the Gradle 9.6+ API removal error
+          if [ -f "gradlew" ]; then
+            ./gradlew wrapper --gradle-version 8.9
+          else
+            gradle wrapper --gradle-version 8.9
+          fi
+          
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
