@@ -13,7 +13,7 @@ jobs:
         run: |
           unzip -q *.zip -d source_code
           cd source_code
-          if [ -d * ]; then cd */; fi
+          cd $(ls -d */)
           chmod +x gradlew
           ./gradlew assembleDebug
       - name: Upload
@@ -21,3 +21,4 @@ jobs:
         with:
           name: app-debug
           path: '**/build/outputs/apk/debug/*.apk'
+          
