@@ -11,9 +11,17 @@ jobs:
           java-version: '17'
       - name: Build
         run: |
+          echo "=== Listing files in root ==="
+          ls -la
+          echo "=== Unzipping ==="
           unzip -q *.zip -d source_code
           cd source_code
-          cd $(ls -d */)
+          echo "=== Listing extracted files ==="
+          ls -la
+          # Automatically move into the extracted project folder
+          cd $(find . -maxdepth 1 -type d ! -name '.' | head -n 1)
+          echo "=== Current directory contents ==="
+          ls -la
           chmod +x gradlew
           ./gradlew assembleDebug
       - name: Upload
@@ -21,3 +29,4 @@ jobs:
         with:
           name: app-debug
           path: '**/build/outputs/apk/debug/*.apk'
+          
