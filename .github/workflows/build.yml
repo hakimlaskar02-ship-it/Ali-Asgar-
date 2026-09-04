@@ -14,11 +14,8 @@ jobs:
           unzip -q *.zip -d source_code
           cd source_code
           cd $(find . -maxdepth 1 -type d ! -name '.' | head -n 1)
-          # If gradlew doesn't exist, generate gradle wrapper automatically
-          if [ ! -f "gradlew" ]; then
-            echo "Generating gradle wrapper..."
-            gradle wrapper
-          fi
+          # Use a stable older gradle version wrapper to prevent API incompatibility
+          gradle wrapper --gradle-version 8.8
           chmod +x gradlew
           ./gradlew assembleDebug
       - name: Upload
