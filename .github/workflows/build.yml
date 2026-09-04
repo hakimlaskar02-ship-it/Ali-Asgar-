@@ -1,19 +1,46 @@
-name: Build APK
+name: Build Android APK
 
-on: [push]
+# à¦à¦‡ workflow à¦Ÿà¦¾ à¦¤à¦–à¦¨à¦‡ à¦šà¦²à¦¬à§‡ à¦¯à¦–à¦¨ à¦†à¦ªà¦¨à¦¿ "Run workflow" à¦šà¦¾à¦ªà¦¬à§‡à¦¨ (Actions à¦Ÿà§à¦¯à¦¾à¦¬ à¦¥à§‡à¦•à§‡)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-    - run: unzip -q *.zip -d src && cd src/* || cd src && chmod +x gradlew && ./gradlew assembleDebug
-    - uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: '**/build/outputs/apk/debug/*.apk'
-		
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Java (Android build-à¦à¦° à¦œà¦¨à§à¦¯ à¦¦à¦°à¦•à¦¾à¦°)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Node.js (Bubblewrap CLI à¦šà¦¾à¦²à¦¾à¦¨à§‹à¦° à¦œà¦¨à§à¦¯)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Bubblewrap CLI
+        run: npm install -g @bubblewrap/cli
+
+      # ðŸ‘‡ à¦à¦–à¦¾à¦¨à§‡ à¦†à¦ªà¦¨à¦¾à¦° Netlify à¦²à¦¿à¦‚à¦•à§‡à¦° manifest.json à¦¦à¦¿à¦¨
+      - name: Initialize the Android (TWA) project from your PWA manifest
+        run: |
+          bubblewrap init \
+            --manifest=https://poetic-churros-b1584d.netlify.app/manifest.json \
+            --directory=./twa-project \
+            --skipPrompts
+
+      - name: Build the APK
+        working-directory: ./twa-project
+        run: bubblewrap build --skipPdfValidation
+
+      - name: Upload the APK as a downloadable file
+        uses: actions/upload-artifact@v4
+        with:
+          name: madrasa-app-apk
+          path: ./twa-project/app-release-signed.apk
