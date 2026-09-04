@@ -15,17 +15,15 @@ jobs:
           cd source_code
           cd $(find . -maxdepth 1 -type d ! -name '.' | head -n 1)
           
-          # Force overwrite gradle-wrapper.properties to use Gradle 8.5
-          mkdir -p gradle/wrapper
-          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
-          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          # Clean old gradle files and caches if exist
+          rm -rf .gradle build app/build
           
+          # Force Gradle wrapper to version 8.5
           gradle wrapper --gradle-version 8.5
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          
+          # Run build with stacktrace and clean option
+          ./gradlew clean assembleDebug --no-daemon
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
