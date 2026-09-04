@@ -15,13 +15,15 @@ jobs:
           cd source_code
           cd $(find . -maxdepth 1 -type d ! -name '.' | head -n 1)
           
-          # Force Gradle version 8.9 to avoid the Gradle 9.6+ API removal error
-          if [ -f "gradlew" ]; then
-            ./gradlew wrapper --gradle-version 8.9
-          else
-            gradle wrapper --gradle-version 8.9
-          fi
+          # Force overwrite gradle-wrapper.properties to use Gradle 8.5
+          mkdir -p gradle/wrapper
+          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
+          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
+          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
+          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
           
+          gradle wrapper --gradle-version 8.5
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
       - name: Upload
@@ -29,4 +31,3 @@ jobs:
         with:
           name: app-debug
           path: '**/build/outputs/apk/debug/*.apk'
-          
