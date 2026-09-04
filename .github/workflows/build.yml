@@ -11,17 +11,14 @@ jobs:
           java-version: '17'
       - name: Build
         run: |
-          echo "=== Listing files in root ==="
-          ls -la
-          echo "=== Unzipping ==="
           unzip -q *.zip -d source_code
           cd source_code
-          echo "=== Listing extracted files ==="
-          ls -la
-          # Automatically move into the extracted project folder
           cd $(find . -maxdepth 1 -type d ! -name '.' | head -n 1)
-          echo "=== Current directory contents ==="
-          ls -la
+          # If gradlew doesn't exist, generate gradle wrapper automatically
+          if [ ! -f "gradlew" ]; then
+            echo "Generating gradle wrapper..."
+            gradle wrapper
+          fi
           chmod +x gradlew
           ./gradlew assembleDebug
       - name: Upload
