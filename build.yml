@@ -44,3 +44,6 @@ jobs:
         with:
           name: madrasa-app-apk
           path: ./twa-project/app-release-signed.apk
+
+
+    
