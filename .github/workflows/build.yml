@@ -1,0 +1,37 @@
+name: Build Android App
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Unzip Project Files
+        run: |
+          if [ -f *.zip ]; then
+            unzip *.zip -d extracted_project
+          fi
+
+      - name: Build with Gradle and Generate APK
+        run: |
+          cd extracted_project || cd *
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK File
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: '**/build/outputs/apk/debug/*.apk'
+          
