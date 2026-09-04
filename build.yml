@@ -1,0 +1,46 @@
+name: Build Android APK
+
+# এই workflow টা তখনই চলবে যখন আপনি "Run workflow" চাপবেন (Actions ট্যাব থেকে)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Java (Android build-এর জন্য দরকার)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Node.js (Bubblewrap CLI চালানোর জন্য)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Bubblewrap CLI
+        run: npm install -g @bubblewrap/cli
+
+      # 👇 এখানে আপনার Netlify লিংকের manifest.json দিন
+      - name: Initialize the Android (TWA) project from your PWA manifest
+        run: |
+          bubblewrap init \
+            --manifest=https://poetic-churros-b1584d.netlify.app/manifest.json \
+            --directory=./twa-project \
+            --skipPrompts
+
+      - name: Build the APK
+        working-directory: ./twa-project
+        run: bubblewrap build --skipPdfValidation
+
+      - name: Upload the APK as a downloadable file
+        uses: actions/upload-artifact@v4
+        with:
+          name: madrasa-app-apk
+          path: ./twa-project/app-release-signed.apk
